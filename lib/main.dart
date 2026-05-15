@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'constants.dart';
+import 'controllers/auth_controller.dart';
 import 'controllers/menu_app_controller.dart';
 import 'controllers/dashboard_controller.dart';
+import 'views/auth/login_page.dart';
 import 'views/dashboard/main_screen.dart';
 
 void main() async {
@@ -20,6 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (context) => AuthController()),
         ChangeNotifierProvider(create: (context) => MenuAppController()),
         ChangeNotifierProvider(create: (context) => DashboardController()),
       ],
@@ -31,8 +34,29 @@ class MyApp extends StatelessWidget {
           textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Inter'),
           canvasColor: secondaryColor,
         ),
-        home: MainScreen(),
+        home: const AuthWrapper(),
       ),
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthController>(
+      builder: (context, auth, _) {
+        if (!auth.initialized) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (auth.isLoggedIn) {
+          return MainScreen();
+        }
+        return const LoginPage();
+      },
     );
   }
 }

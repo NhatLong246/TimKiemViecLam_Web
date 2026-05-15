@@ -4,11 +4,18 @@ import '../data/services/auth_service.dart';
 class AuthController extends ChangeNotifier {
   final AuthService _service = AuthService();
   bool _isLoggedIn = false;
+  bool _initialized = false;
 
   bool get isLoggedIn => _isLoggedIn;
+  bool get initialized => _initialized;
+
+  AuthController() {
+    checkLogin();
+  }
 
   Future<void> checkLogin() async {
     _isLoggedIn = await _service.isLoggedIn();
+    _initialized = true;
     notifyListeners();
   }
 
