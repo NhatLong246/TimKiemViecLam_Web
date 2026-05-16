@@ -15,7 +15,8 @@
 | Tạo màn hình / widget mới | `MEMORY.md` → `project_overview.md` → `feature_map.md` → `frontend_ui_rules.md` |
 | Tạo / sửa Controller | `MEMORY.md` → `frontend_ui_rules.md` → file controller liên quan |
 | Tạo / sửa Service (Firebase) | `database_schema.md` → file service liên quan |
-| Sửa navigation / SideMenu | `project_overview.md` → `frontend_ui_rules.md` → `menu_app_controller.dart` |
+| Sửa navigation / SideMenu | `MEMORY.md` (mục Navigation) → `project_overview.md` → `menu_app_controller.dart` |
+| Sửa tin tuyển dụng / jobPosts | `MEMORY.md` → `database_schema.md` → `views/post/` + `job_post_controller.dart` |
 | Sửa bug | `MEMORY.md` (xem Known Issues) → file bị lỗi |
 | Thêm tính năng mới | `MEMORY.md` → `feature_map.md` → `frontend_ui_rules.md` → `database_schema.md` |
 | Hoàn thành 1 feature | Cập nhật `feature_map.md` (đổi ❌ → ✅) + ghi vào `MEMORY.md` Session Log |
@@ -138,7 +139,19 @@ Future<void> loadData() async {
 
 ---
 
-## 6. Chống "Quên" Code
-- Sau mỗi feature hoàn thành: cập nhật `feature_map.md` + ghi vào `MEMORY.md` Session Log.
+## 6. Quy ước thư mục code (cập nhật 2026-05-16)
+
+| Module | Thư mục thực tế | Không dùng |
+|---|---|---|
+| Tin tuyển dụng | `lib/views/post/` | `lib/views/jobs/` (chỉ trong feature_map cũ) |
+| Model dữ liệu | `lib/data/models/` | `lib/models/` (đã bỏ) |
+| Service Firestore | `lib/data/services/` | — |
+
+Khi thêm màn SideMenu mới: hằng `pageXxx` trong `MenuAppController` + case trong `main_screen.dart` + Provider trong `main.dart`.
+
+---
+
+## 7. Chống "Quên" Code
+- Sau mỗi feature hoàn thành: cập nhật `feature_map.md` + `MEMORY.md` (Completed Features, Session Log, Known Issues).
 - Nếu phát hiện bug mới trong quá trình làm: ghi vào `MEMORY.md` phần Known Issues ngay lập tức.
 - Nếu thêm package mới vào `pubspec.yaml`: ghi lại vào `MEMORY.md` phần Packages.

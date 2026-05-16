@@ -16,12 +16,12 @@
 | # | Tính năng | File chính | Status | Ghi chú |
 |---|---|---|---|---|
 | L1 | MainScreen (shell có SideMenu + content) | `views/dashboard/main_screen.dart` | ✅ | Row: SideMenu flex 1 + content flex 5 |
-| L2 | SideMenu (navigation trái) | `views/dashboard/components/side_menu.dart` | ✅ | Có các mục nhưng chưa navigate thực sự |
+| L2 | SideMenu (navigation trái) | `views/dashboard/components/side_menu.dart` | ✅ | Navigate: dashboard, jobs; logout có dialog; các mục khác chưa wire |
 | L3 | Header (thanh tiêu đề + search + avatar) | `views/dashboard/components/header.dart` | ✅ | Cần kết nối search và profile |
 | L4 | Responsive layout (Desktop/Tablet/Mobile) | `responsive.dart` | ✅ | Breakpoints: 1100, 650 |
 | L5 | Đăng nhập Admin | `views/auth/login_page.dart` | ✅ | Username/Password, SharedPreferences |
 | L6 | Routing theo trạng thái login | `main.dart` | ⚠️ | Chưa check Firebase Auth — đang dùng SharedPreferences hardcode |
-| L7 | Navigation giữa các trang (SideMenu → content) | `controllers/menu_app_controller.dart` | ❌ | Cần thêm `currentPage` state để switch content |
+| L7 | Navigation giữa các trang (SideMenu → content) | `controllers/menu_app_controller.dart` | ✅ | `currentPage`: `dashboard` \| `jobs`; mở rộng thêm page khi có màn mới |
 
 ---
 
@@ -58,13 +58,13 @@
 
 | # | Tính năng | File chính | Status | Ghi chú |
 |---|---|---|---|---|
-| J1 | Danh sách tin chờ duyệt | `views/jobs/job_approval_screen.dart` | ❌ | Lọc `status == "pending"` |
-| J2 | Xem chi tiết tin tuyển dụng | `views/jobs/job_detail_screen.dart` | ❌ | Hiện đầy đủ thông tin job |
-| J3 | Duyệt tin | `controllers/job_approval_controller.dart` | ❌ | UPDATE `status = "approved"` |
-| J4 | Từ chối tin (kèm lý do) | `controllers/job_approval_controller.dart` | ❌ | UPDATE `status = "rejected"` + `rejectionReason` |
-| J5 | Danh sách tất cả tin (filter theo status) | `views/jobs/job_list_screen.dart` | ❌ | Lọc: all / pending / approved / rejected / closed |
-| J6 | Tìm kiếm tin tuyển dụng | `views/jobs/job_list_screen.dart` | ❌ | Tìm theo tiêu đề, employer |
-| J7 | Đóng tin tuyển dụng (admin force close) | `controllers/job_approval_controller.dart` | ❌ | UPDATE `status = "closed"` + ghi lý do |
+| J1 | Danh sách tin chờ duyệt | `views/post/job_posts_screen.dart` | ✅ | Lọc chip `pending`; gộp trong màn danh sách chung |
+| J2 | Xem chi tiết tin tuyển dụng | `views/post/` (chưa có) | ❌ | Cần `job_detail_screen.dart` hoặc dialog |
+| J3 | Duyệt tin | `controllers/job_post_controller.dart` | ✅ | `JobPostService.updateJobStatus` → `approved` |
+| J4 | Từ chối tin (kèm lý do) | `controllers/job_post_controller.dart` | ✅ | → `rejected` + `rejectionReason` (tùy chọn) |
+| J5 | Danh sách tất cả tin (filter theo status) | `views/post/job_posts_screen.dart` | ✅ | Chip: all / draft / pending / approved / active / closed / rejected |
+| J6 | Tìm kiếm tin tuyển dụng | `views/post/job_posts_screen.dart` | ✅ | Client-side: tiêu đề, danh mục, địa điểm, employerId |
+| J7 | Đóng tin tuyển dụng (admin force close) | — | ❌ | UPDATE `status = "closed"` + lý do |
 
 ---
 
@@ -122,8 +122,8 @@
 | A1 | Trang đăng nhập | `views/auth/login_page.dart` | ✅ | Hardcode user/pass tạm |
 | A2 | Đăng nhập bằng Firebase Auth | `data/services/auth_service.dart` | ⚠️ | Đang dùng SharedPreferences giả — cần đổi sang Firebase Auth |
 | A3 | Kiểm tra role == "admin" sau login | `data/services/auth_service.dart` | ❌ | Sau khi login Firebase, query `users/{uid}.role` để xác nhận |
-| A4 | Đăng xuất | `controllers/auth_controller.dart` | ✅ | Có nhưng dùng SharedPreferences |
-| A5 | Auto redirect về login nếu chưa đăng nhập | `main.dart` | ❌ | |
+| A4 | Đăng xuất | `auth_controller.dart` + `side_menu.dart` | ✅ | Dialog xác nhận; clear SharedPreferences; `AuthWrapper` → LoginPage |
+| A5 | Auto redirect về login nếu chưa đăng nhập | `main.dart` | ✅ | `AuthWrapper` + `AuthController.checkLogin()` khi khởi động |
 
 ---
 
@@ -142,10 +142,10 @@ lib/
 │   │   ├── user_detail_screen.dart  ❌ (U3)
 │   │   ├── employer_list_screen.dart ❌ (U6)
 │   │   └── candidate_list_screen.dart ❌ (U7)
-│   ├── jobs/
-│   │   ├── job_approval_screen.dart ❌ (J1-J4)
-│   │   ├── job_list_screen.dart     ❌ (J5-J6)
-│   │   └── job_detail_screen.dart   ❌ (J2)
+│   ├── post/                        ✅ (J1,J3-J6) — dùng thư mục này, không tạo views/jobs/
+│   │   ├── job_posts_screen.dart    ✅
+│   │   ├── job_detail_screen.dart   ❌ (J2) — tạo trong post/ khi làm
+│   │   └── components/              ✅ job_post_table, job_status_chip, job_status_filter_chip
 │   ├── disputes/
 │   │   ├── dispute_list_screen.dart ❌ (DI1)
 │   │   ├── dispute_detail_screen.dart ❌ (DI2-DI4)
@@ -161,18 +161,20 @@ lib/
 ├── controllers/
 │   ├── auth_controller.dart         ✅ (cần refactor)
 │   ├── dashboard_controller.dart    ✅
-│   ├── menu_app_controller.dart     ✅ (cần thêm currentPage)
+│   ├── menu_app_controller.dart     ✅ currentPage + navigateTo
+│   ├── job_post_controller.dart     ✅ duyệt/từ chối + filter
 │   ├── user_management_controller.dart ❌
-│   ├── job_approval_controller.dart ❌
 │   ├── dispute_controller.dart      ❌
 │   ├── revenue_controller.dart      ❌
 │   ├── category_controller.dart     ❌
 │   └── settings_controller.dart     ❌
 └── data/
+    ├── models/
+    │   └── job_post_model.dart      ✅
     └── services/
         ├── auth_service.dart        ✅ (cần refactor sang Firebase Auth)
+        ├── job_post_service.dart    ✅ fetch + update status jobPosts
         ├── user_service.dart        ❌
-        ├── job_service.dart         ❌
         ├── dispute_service.dart     ❌
         ├── transaction_service.dart ❌
         ├── category_service.dart    ❌
