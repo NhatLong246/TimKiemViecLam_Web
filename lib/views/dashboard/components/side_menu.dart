@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../constants.dart';
+import '../../../controllers/auth_controller.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
@@ -82,11 +84,35 @@ class SideMenu extends StatelessWidget {
           DrawerListTile(
             title: "Đăng xuất",
             icon: Icons.logout,
-            press: () {},
+            press: () => _confirmLogout(context),
           ),
         ],
       ),
     );
+  }
+}
+
+Future<void> _confirmLogout(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Đăng xuất'),
+      content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Huỷ'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Có'),
+        ),
+      ],
+    ),
+  );
+  if (confirmed == true && context.mounted) {
+    await context.read<AuthController>().logout();
   }
 }
 
