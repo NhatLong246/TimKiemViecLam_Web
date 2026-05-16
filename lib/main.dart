@@ -6,6 +6,7 @@ import 'constants.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/menu_app_controller.dart';
 import 'controllers/dashboard_controller.dart';
+import 'controllers/job_post_controller.dart';
 import 'views/auth/login_page.dart';
 import 'views/dashboard/main_screen.dart';
 
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => AuthController()),
         ChangeNotifierProvider(create: (context) => MenuAppController()),
         ChangeNotifierProvider(create: (context) => DashboardController()),
+        ChangeNotifierProvider(create: (context) => JobPostController()),
       ],
       child: MaterialApp(
         title: 'ViecNow Admin',

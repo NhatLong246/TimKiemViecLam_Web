@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../constants.dart';
 import '../../../controllers/auth_controller.dart';
+import '../../../controllers/menu_app_controller.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
@@ -10,6 +11,16 @@ class SideMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentPage = context.watch<MenuAppController>().currentPage;
+
+    void navigate(String page) {
+      context.read<MenuAppController>().navigateTo(page);
+      final scaffold = Scaffold.maybeOf(context);
+      if (scaffold?.isDrawerOpen ?? false) {
+        Navigator.of(context).pop();
+      }
+    }
+
     return Drawer(
       backgroundColor: sidebarColor,
       child: ListView(
@@ -41,8 +52,8 @@ class SideMenu extends StatelessWidget {
           DrawerListTile(
             title: "Bảng điều khiển",
             icon: Icons.dashboard,
-            press: () {},
-            isActive: true,
+            press: () => navigate(MenuAppController.pageDashboard),
+            isActive: currentPage == MenuAppController.pageDashboard,
           ),
           DrawerListTile(
             title: "Quản lý người dùng",
@@ -57,7 +68,8 @@ class SideMenu extends StatelessWidget {
           DrawerListTile(
             title: "Tin tuyển dụng",
             icon: Icons.article,
-            press: () {},
+            press: () => navigate(MenuAppController.pageJobs),
+            isActive: currentPage == MenuAppController.pageJobs,
           ),
           DrawerListTile(
             title: "Hồ sơ ứng viên (CV)",
