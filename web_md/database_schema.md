@@ -112,19 +112,21 @@
 
 ---
 
-### 5. `disputes` — Xử lý tranh chấp
-**Path:** `disputes/{disputeId}`
-**Web admin dùng để:** Xem và phân xử tranh chấp từ app mobile.
+### 5. `jobComplaints` — Khiếu nại công việc
+**Path:** `jobComplaints/{complaintId}`
+**Web admin dùng để:** Xem và phân xử khiếu nại/sự cố từ app mobile.
 
 | Field | Kiểu | Mô tả |
 |---|---|---|
-| `disputeId` | `String` | Auto-generated |
+| `complaintId` | `String` | Auto-generated (doc.id) |
 | `jobId` | `String` | Job liên quan |
-| `raisedBy` | `String` | UID người tạo tranh chấp |
-| `againstId` | `String` | UID người bị khiếu nại |
-| `reason` | `String` | Lý do tranh chấp |
-| `evidence` | `List<String>` | Danh sách URL bằng chứng |
-| `status` | `String` | `"open"` \| `"reviewing"` \| `"resolved"` \| `"dismissed"` |
+| `groupId` | `String` | Group chat liên quan |
+| `employerId` | `String` | UID Employer |
+| `candidateId` | `String` | UID Candidate |
+| `jobTitle` | `String` | Tên công việc |
+| `description` | `String` | Nội dung khiếu nại |
+| `imageBase64s` | `List<String>` | Bằng chứng ảnh |
+| `status` | `String` | `"pending"` \| `"processing"` \| `"resolved"` \| `"rejected"` |
 | `resolution` | `String?` | Kết quả xử lý (admin ghi) |
 | `resolvedBy` | `String?` | UID admin xử lý |
 | `createdAt` | `Timestamp` | Thời điểm tạo |
@@ -133,6 +135,30 @@
 **Thao tác admin được phép:**
 - `GET` danh sách, lọc theo `status`
 - `UPDATE` field `status`, `resolution`, `resolvedBy`
+
+---
+
+### 5.1 `disbursementNotices` — Giải ngân
+**Path:** `disbursementNotices/{noticeId}`
+**Web admin dùng để:** Duyệt yêu cầu giải ngân từ Employer.
+
+| Field | Kiểu | Mô tả |
+|---|---|---|
+| `noticeId` | `String` | Auto-generated (doc.id) |
+| `jobId` | `String` | Job liên quan |
+| `groupId` | `String` | Group chat liên quan |
+| `employerId` | `String` | UID Employer |
+| `workDate` | `String` | `"YYYY-MM-DD"` |
+| `amount` | `double` | Số tiền giải ngân |
+| `status` | `String` | `"pending_ack"` \| `"cleared"` \| `"rejected"` |
+| `employerAck` | `bool` | NTD đã xác nhận |
+| `adminAck` | `bool` | Admin đã xác nhận (Duyệt) |
+| `rejectionReason` | `String?` | Lý do từ chối (Admin ghi) |
+| `createdAt` | `Timestamp` | Thời điểm tạo |
+
+**Thao tác admin được phép:**
+- `GET` danh sách, lọc theo `status`
+- `UPDATE` field `adminAck`, `status`, `rejectionReason`
 
 ---
 

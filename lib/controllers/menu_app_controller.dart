@@ -5,6 +5,10 @@ class MenuAppController extends ChangeNotifier {
 
   static const pageDashboard = 'dashboard';
   static const pageJobs = 'jobs';
+  static const pageDisbursements = 'disbursements';
+  static const pageComplaints = 'complaints';
+  static const pageUsers = 'users';
+  static const pageEmployers = 'employers';
 
   String _currentPage = pageDashboard;
 

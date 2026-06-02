@@ -30,6 +30,34 @@ class JobPostService {
     }
   }
 
+  Future<List<JobPostModel>> fetchJobPostsByEmployer(String employerId, {int limit = 50}) async {
+    try {
+      final snapshot = await _db
+          .collection('jobPosts')
+          .where('employerId', isEqualTo: employerId)
+          .limit(limit)
+          .get();
+
+      final jobs = snapshot.docs.map((doc) {
+        final data = Map<String, dynamic>.from(doc.data());
+        data['jobId'] = data['jobId'] as String? ?? doc.id;
+        return JobPostModel.fromMap(data);
+      }).toList();
+
+      jobs.sort((a, b) {
+        if (a.createdAt == null && b.createdAt == null) return 0;
+        if (a.createdAt == null) return 1;
+        if (b.createdAt == null) return -1;
+        return b.createdAt!.compareTo(a.createdAt!);
+      });
+      return jobs;
+    } on FirebaseException catch (e) {
+      throw Exception('Firebase error: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
+
   Future<void> updateJobStatus(
     String jobId, {
     required String status,

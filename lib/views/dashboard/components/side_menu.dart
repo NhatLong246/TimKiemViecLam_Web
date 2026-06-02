@@ -58,12 +58,14 @@ class SideMenu extends StatelessWidget {
           DrawerListTile(
             title: "Quản lý người dùng",
             icon: Icons.people,
-            press: () {},
+            press: () => navigate(MenuAppController.pageUsers),
+            isActive: currentPage == MenuAppController.pageUsers,
           ),
           DrawerListTile(
             title: "Nhà tuyển dụng",
             icon: Icons.business,
-            press: () {},
+            press: () => navigate(MenuAppController.pageEmployers),
+            isActive: currentPage == MenuAppController.pageEmployers,
           ),
           DrawerListTile(
             title: "Tin tuyển dụng",
@@ -75,6 +77,18 @@ class SideMenu extends StatelessWidget {
             title: "Hồ sơ ứng viên (CV)",
             icon: Icons.file_present,
             press: () {},
+          ),
+          DrawerListTile(
+            title: "Giải ngân",
+            icon: Icons.monetization_on,
+            press: () => navigate(MenuAppController.pageDisbursements),
+            isActive: currentPage == MenuAppController.pageDisbursements,
+          ),
+          DrawerListTile(
+            title: "Khiếu nại",
+            icon: Icons.report_problem,
+            press: () => navigate(MenuAppController.pageComplaints),
+            isActive: currentPage == MenuAppController.pageComplaints,
           ),
           DrawerListTile(
             title: "Danh mục ngành nghề",

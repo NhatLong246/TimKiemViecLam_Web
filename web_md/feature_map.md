@@ -43,12 +43,12 @@
 
 | # | Tính năng | File chính | Status | Ghi chú |
 |---|---|---|---|---|
-| U1 | Danh sách người dùng (table) | `views/users/user_list_screen.dart` | ❌ | Phân trang, lọc theo role |
-| U2 | Tìm kiếm người dùng | `views/users/user_list_screen.dart` | ❌ | Tìm theo email, tên, username |
-| U3 | Xem chi tiết người dùng | `views/users/user_detail_screen.dart` | ❌ | Thông tin đầy đủ + lịch sử hoạt động |
-| U4 | Khoá / Mở khoá tài khoản | `controllers/user_management_controller.dart` | ❌ | UPDATE `isActive` trong Firestore |
-| U5 | Xác thực tài khoản thủ công | `controllers/user_management_controller.dart` | ❌ | UPDATE `isVerified = true` |
-| U6 | Danh sách Employer | `views/users/employer_list_screen.dart` | ❌ | Lọc `role == "employer"`, hiện số dư ví |
+| U1 | Danh sách người dùng (table) | `views/users/user_management_screen.dart` | ✅ | Lọc theo role (all/candidate) |
+| U2 | Tìm kiếm người dùng | `views/users/user_management_screen.dart` | ✅ | Tìm theo email, tên, username |
+| U3 | Xem chi tiết người dùng | `views/users/components/user_detail_dialog.dart` | ✅ | Dialog thông tin đầy đủ |
+| U4 | Khoá / Mở khoá tài khoản | `controllers/user_controller.dart` | ✅ | UPDATE `isActive` trong Firestore |
+| U5 | Xác thực tài khoản thủ công | `controllers/user_controller.dart` | ✅ | UPDATE `isVerified = true` |
+| U6 | Quản lý Employer | `views/employers/employer_management_screen.dart` | ✅ | Danh sách, lịch sử Job & Giao dịch |
 | U7 | Danh sách Candidate | `views/users/candidate_list_screen.dart` | ❌ | Lọc `role == "candidate"`, hiện rating |
 | U8 | Export danh sách người dùng (CSV) | - | ❌ | Tương lai |
 
@@ -68,15 +68,26 @@
 
 ---
 
-## XỬ LÝ TRANH CHẤP
+## QUẢN LÝ GIẢI NGÂN
 
 | # | Tính năng | File chính | Status | Ghi chú |
 |---|---|---|---|---|
-| DI1 | Danh sách tranh chấp đang mở | `views/disputes/dispute_list_screen.dart` | ❌ | Lọc `status == "open"` |
-| DI2 | Xem chi tiết tranh chấp + bằng chứng | `views/disputes/dispute_detail_screen.dart` | ❌ | Hiện evidence (ảnh/video) |
-| DI3 | Phân xử tranh chấp (ghi resolution) | `controllers/dispute_controller.dart` | ❌ | UPDATE `status = "resolved"` + `resolution` |
-| DI4 | Bác bỏ tranh chấp | `controllers/dispute_controller.dart` | ❌ | UPDATE `status = "dismissed"` |
-| DI5 | Lịch sử tranh chấp đã xử lý | `views/disputes/dispute_history_screen.dart` | ❌ | Lọc `status == "resolved" / "dismissed"` |
+| DB1 | Danh sách yêu cầu giải ngân | `views/disbursements/disbursement_screen.dart` | ❌ | Các tab: Chờ duyệt, Đã duyệt, Từ chối |
+| DB2 | Xem chi tiết giải ngân | `views/disbursements/components/disbursement_detail_dialog.dart` | ❌ | Dialog chi tiết |
+| DB3 | Duyệt giải ngân | `controllers/disbursement_controller.dart` | ❌ | UPDATE `adminAck = true`, `status = "cleared"` |
+| DB4 | Từ chối giải ngân | `controllers/disbursement_controller.dart` | ❌ | UPDATE `status = "rejected"`, `rejectionReason` |
+
+---
+
+## XỬ LÝ KHIẾU NẠI
+
+| # | Tính năng | File chính | Status | Ghi chú |
+|---|---|---|---|---|
+| CP1 | Danh sách khiếu nại | `views/complaints/complaint_screen.dart` | ❌ | Lọc `status == "pending" \| "processing"` |
+| CP2 | Xem chi tiết khiếu nại | `views/complaints/components/complaint_detail_dialog.dart` | ❌ | Hiện ảnh base64 |
+| CP3 | Cập nhật trạng thái xử lý | `controllers/complaint_controller.dart` | ❌ | UPDATE `status` |
+| CP4 | Phân xử khiếu nại | `controllers/complaint_controller.dart` | ❌ | UPDATE `status = "resolved" \| "rejected"`, `resolution` |
+| CP5 | Lịch sử khiếu nại đã xử lý | `views/complaints/complaint_screen.dart` | ❌ | Tab riêng |
 
 ---
 
@@ -138,18 +149,25 @@ lib/
 │   │   ├── main_screen.dart         ✅
 │   │   └── components/              ✅
 │   ├── users/
-│   │   ├── user_list_screen.dart    ❌ (U1-U5)
-│   │   ├── user_detail_screen.dart  ❌ (U3)
-│   │   ├── employer_list_screen.dart ❌ (U6)
-│   │   └── candidate_list_screen.dart ❌ (U7)
+│   │   ├── user_management_screen.dart ✅ (U1, U2)
+│   │   └── components/
+│   │       └── user_detail_dialog.dart ✅ (U3)
+│   ├── employers/
+│   │   ├── employer_management_screen.dart ✅ (U6)
+│   │   └── components/
+│   │       └── employer_detail_dialog.dart ✅
 │   ├── post/                        ✅ (J1,J3-J6) — dùng thư mục này, không tạo views/jobs/
 │   │   ├── job_posts_screen.dart    ✅
 │   │   ├── job_detail_screen.dart   ❌ (J2) — tạo trong post/ khi làm
 │   │   └── components/              ✅ job_post_table, job_status_chip, job_status_filter_chip
-│   ├── disputes/
-│   │   ├── dispute_list_screen.dart ❌ (DI1)
-│   │   ├── dispute_detail_screen.dart ❌ (DI2-DI4)
-│   │   └── dispute_history_screen.dart ❌ (DI5)
+│   ├── disbursements/
+│   │   ├── disbursement_screen.dart ❌ (DB1)
+│   │   └── components/
+│   │       └── disbursement_detail_dialog.dart ❌ (DB2-DB4)
+│   ├── complaints/
+│   │   ├── complaint_screen.dart    ❌ (CP1, CP5)
+│   │   └── components/
+│   │       └── complaint_detail_dialog.dart ❌ (CP2-CP4)
 │   ├── revenue/
 │   │   ├── revenue_screen.dart      ❌ (R1-R2)
 │   │   └── transaction_list_screen.dart ❌ (R3-R4)
@@ -163,8 +181,10 @@ lib/
 │   ├── dashboard_controller.dart    ✅
 │   ├── menu_app_controller.dart     ✅ currentPage + navigateTo
 │   ├── job_post_controller.dart     ✅ duyệt/từ chối + filter
-│   ├── user_management_controller.dart ❌
-│   ├── dispute_controller.dart      ❌
+│   ├── user_controller.dart         ✅
+│   ├── employer_controller.dart     ✅
+│   ├── disbursement_controller.dart ❌
+│   ├── complaint_controller.dart    ❌
 │   ├── revenue_controller.dart      ❌
 │   ├── category_controller.dart     ❌
 │   └── settings_controller.dart     ❌
@@ -174,9 +194,10 @@ lib/
     └── services/
         ├── auth_service.dart        ✅ (cần refactor sang Firebase Auth)
         ├── job_post_service.dart    ✅ fetch + update status jobPosts
-        ├── user_service.dart        ❌
-        ├── dispute_service.dart     ❌
-        ├── transaction_service.dart ❌
+        ├── user_service.dart        ✅
+        ├── disbursement_service.dart ✅
+        ├── complaint_service.dart   ✅
+        ├── transaction_service.dart ✅
         ├── category_service.dart    ❌
         └── settings_service.dart   ❌
 ```
