@@ -9,6 +9,9 @@ class MenuAppController extends ChangeNotifier {
   static const pageComplaints = 'complaints';
   static const pageUsers = 'users';
   static const pageEmployers = 'employers';
+  static const pageCandidates = 'candidates';
+  static const pageCategories = 'categories';
+  static const pageSettings = 'settings';
 
   String _currentPage = pageDashboard;
 

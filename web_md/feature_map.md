@@ -49,7 +49,7 @@
 | U4 | Khoá / Mở khoá tài khoản | `controllers/user_controller.dart` | ✅ | UPDATE `isActive` trong Firestore |
 | U5 | Xác thực tài khoản thủ công | `controllers/user_controller.dart` | ✅ | UPDATE `isVerified = true` |
 | U6 | Quản lý Employer | `views/employers/employer_management_screen.dart` | ✅ | Danh sách, lịch sử Job & Giao dịch |
-| U7 | Danh sách Candidate | `views/users/candidate_list_screen.dart` | ❌ | Lọc `role == "candidate"`, hiện rating |
+| U7 | Danh sách Candidate | `views/candidates/candidate_management_screen.dart` | ✅ | Lọc `role == "candidate"` |
 | U8 | Export danh sách người dùng (CSV) | - | ❌ | Tương lai |
 
 ---
@@ -72,10 +72,10 @@
 
 | # | Tính năng | File chính | Status | Ghi chú |
 |---|---|---|---|---|
-| DB1 | Danh sách yêu cầu giải ngân | `views/disbursements/disbursement_screen.dart` | ❌ | Các tab: Chờ duyệt, Đã duyệt, Từ chối |
-| DB2 | Xem chi tiết giải ngân | `views/disbursements/components/disbursement_detail_dialog.dart` | ❌ | Dialog chi tiết |
-| DB3 | Duyệt giải ngân | `controllers/disbursement_controller.dart` | ❌ | UPDATE `adminAck = true`, `status = "cleared"` |
-| DB4 | Từ chối giải ngân | `controllers/disbursement_controller.dart` | ❌ | UPDATE `status = "rejected"`, `rejectionReason` |
+| DB1 | Danh sách yêu cầu giải ngân | `views/disbursements/disbursement_screen.dart` | ✅ | Các tab: Chờ duyệt, Đã duyệt, Từ chối |
+| DB2 | Xem chi tiết giải ngân | `views/disbursements/components/disbursement_detail_dialog.dart` | ✅ | Dialog chi tiết |
+| DB3 | Duyệt giải ngân | `controllers/disbursement_controller.dart` | ✅ | UPDATE `adminAck = true`, `status = "cleared"` |
+| DB4 | Từ chối giải ngân | `controllers/disbursement_controller.dart` | ✅ | UPDATE `status = "rejected"`, `rejectionReason` |
 
 ---
 
@@ -83,11 +83,11 @@
 
 | # | Tính năng | File chính | Status | Ghi chú |
 |---|---|---|---|---|
-| CP1 | Danh sách khiếu nại | `views/complaints/complaint_screen.dart` | ❌ | Lọc `status == "pending" \| "processing"` |
-| CP2 | Xem chi tiết khiếu nại | `views/complaints/components/complaint_detail_dialog.dart` | ❌ | Hiện ảnh base64 |
-| CP3 | Cập nhật trạng thái xử lý | `controllers/complaint_controller.dart` | ❌ | UPDATE `status` |
-| CP4 | Phân xử khiếu nại | `controllers/complaint_controller.dart` | ❌ | UPDATE `status = "resolved" \| "rejected"`, `resolution` |
-| CP5 | Lịch sử khiếu nại đã xử lý | `views/complaints/complaint_screen.dart` | ❌ | Tab riêng |
+| CP1 | Danh sách khiếu nại | `views/complaints/complaint_screen.dart` | ✅ | Lọc `status == "pending" \| "processing"` |
+| CP2 | Xem chi tiết khiếu nại | `views/complaints/components/complaint_detail_dialog.dart` | ✅ | Hiện ảnh base64 |
+| CP3 | Cập nhật trạng thái xử lý | `controllers/complaint_controller.dart` | ✅ | UPDATE `status` |
+| CP4 | Phân xử khiếu nại (Phạt/Bồi thường) | `controllers/complaint_controller.dart` | ✅ | UPDATE `status = "resolved" \| "rejected"`, `resolution`, transaction |
+| CP5 | Lịch sử khiếu nại đã xử lý | `views/complaints/complaint_screen.dart` | ✅ | Tab riêng |
 
 ---
 
@@ -107,11 +107,10 @@
 
 | # | Tính năng | File chính | Status | Ghi chú |
 |---|---|---|---|---|
-| C1 | Danh sách danh mục | `views/categories/category_list_screen.dart` | ❌ | Từ collection `jobCategories` |
-| C2 | Thêm danh mục mới | `views/categories/category_form_screen.dart` | ❌ | Check duplicate `key` trước khi tạo |
-| C3 | Sửa danh mục | `views/categories/category_form_screen.dart` | ❌ | Tái sử dụng form |
-| C4 | Ẩn/Hiện danh mục | `controllers/category_controller.dart` | ❌ | UPDATE `isActive` |
-| C5 | Sắp xếp thứ tự danh mục | `controllers/category_controller.dart` | ❌ | Drag-and-drop hoặc order input |
+| C1 | Danh sách danh mục | `views/categories/category_management_screen.dart` | ✅ | Từ collection `categories` |
+| C2 | Thêm danh mục mới | `views/categories/components/category_dialog.dart` | ✅ | Dialog Thêm mới |
+| C3 | Sửa danh mục | `views/categories/components/category_dialog.dart` | ✅ | Tái sử dụng form |
+| C4 | Ẩn/Hiện danh mục | `controllers/category_controller.dart` | ✅ | UPDATE `isActive` |
 
 ---
 
@@ -119,10 +118,10 @@
 
 | # | Tính năng | File chính | Status | Ghi chú |
 |---|---|---|---|---|
-| S1 | Xem cấu hình hiện tại | `views/settings/settings_screen.dart` | ❌ | Đọc từ `systemConfig/general` |
-| S2 | Cập nhật % phí nền tảng | `controllers/settings_controller.dart` | ❌ | Validate: 0.0 → 30.0 |
-| S3 | Cài đặt số tiền nạp/rút tối thiểu | `controllers/settings_controller.dart` | ❌ | |
-| S4 | Bật/tắt chế độ bảo trì | `controllers/settings_controller.dart` | ❌ | UPDATE `maintenanceMode` |
+| S1 | Xem cấu hình hiện tại | `views/settings/settings_screen.dart` | ✅ | Đọc từ `system_configs` |
+| S2 | Bật/tắt duyệt tự động | `controllers/settings_controller.dart` | ✅ | Toggle Auto Approve |
+| S3 | Cài đặt số tiền đăng tin tối thiểu | `controllers/settings_controller.dart` | ✅ | Min balance |
+| S4 | Bật/tắt thông báo | `controllers/settings_controller.dart` | ✅ | UPDATE notification prefs |
 
 ---
 

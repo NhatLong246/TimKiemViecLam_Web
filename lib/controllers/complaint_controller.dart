@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../data/services/complaint_service.dart';
 import '../data/models/complaint_model.dart';
+import '../data/services/transaction_service.dart';
+import '../data/services/notification_service.dart';
 
 class ComplaintController extends ChangeNotifier {
   final ComplaintService _service = ComplaintService();
+  final TransactionService _txnService = TransactionService();
+  final NotificationService _notifService = NotificationService();
 
   List<ComplaintModel> _allComplaints = [];
   String _statusFilter = 'all';
@@ -101,6 +105,56 @@ class ComplaintController extends ChangeNotifier {
           resolvedBy: resolvedBy,
         );
       }
+      return null;
+    } catch (e) {
+      return e.toString();
+    } finally {
+      processingComplaintId = null;
+      notifyListeners();
+    }
+  }
+
+  Future<String?> applyPenalty(String complaintId, String employerId, double amount, String reason) async {
+    processingComplaintId = complaintId;
+    notifyListeners();
+    try {
+      await _txnService.createTransaction(
+        userId: employerId,
+        type: 'penalty',
+        amount: amount,
+      );
+      await _notifService.sendNotification(
+        userId: employerId,
+        title: 'Thông báo xử phạt vi phạm',
+        body: 'Tài khoản của bạn đã bị trừ ${amount.toStringAsFixed(0)}đ do: $reason',
+        type: 'penalty',
+        relatedId: complaintId,
+      );
+      return null;
+    } catch (e) {
+      return e.toString();
+    } finally {
+      processingComplaintId = null;
+      notifyListeners();
+    }
+  }
+
+  Future<String?> applyCompensation(String complaintId, String candidateId, double amount, String reason) async {
+    processingComplaintId = complaintId;
+    notifyListeners();
+    try {
+      await _txnService.createTransaction(
+        userId: candidateId,
+        type: 'compensation',
+        amount: amount,
+      );
+      await _notifService.sendNotification(
+        userId: candidateId,
+        title: 'Thông báo bồi thường khiếu nại',
+        body: 'Tài khoản của bạn đã được cộng ${amount.toStringAsFixed(0)}đ với lý do: $reason',
+        type: 'compensation',
+        relatedId: complaintId,
+      );
       return null;
     } catch (e) {
       return e.toString();

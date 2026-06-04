@@ -28,4 +28,47 @@ class TransactionService {
       throw Exception('Không thể tải lịch sử giao dịch: $e');
     }
   }
+
+  Future<void> createTransaction({
+    required String userId,
+    required String type,
+    required double amount,
+    String? jobId,
+    String status = 'completed',
+  }) async {
+    final userRef = _firestore.collection('users').doc(userId);
+    final txnRef = _firestore.collection('transactions').doc();
+
+    await _firestore.runTransaction((transaction) async {
+      final userSnapshot = await transaction.get(userRef);
+      if (!userSnapshot.exists) {
+        throw Exception('Người dùng không tồn tại');
+      }
+
+      final double currentBalance =
+          (userSnapshot.data()?['walletBalance'] as num?)?.toDouble() ?? 0.0;
+
+      double newBalance = currentBalance;
+      if (type == 'penalty') {
+        newBalance -= amount;
+      } else if (type == 'compensation') {
+        newBalance += amount;
+      } else {
+        newBalance += amount;
+      }
+
+      transaction.update(userRef, {'walletBalance': newBalance});
+
+      transaction.set(txnRef, {
+        'userId': userId,
+        'type': type,
+        'amount': amount,
+        'balanceBefore': currentBalance,
+        'balanceAfter': newBalance,
+        'jobId': jobId,
+        'status': status,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    });
+  }
 }

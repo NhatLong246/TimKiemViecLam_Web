@@ -11,6 +11,9 @@ import 'controllers/disbursement_controller.dart';
 import 'controllers/complaint_controller.dart';
 import 'controllers/user_controller.dart';
 import 'controllers/employer_controller.dart';
+import 'controllers/candidate_controller.dart';
+import 'controllers/category_controller.dart';
+import 'controllers/settings_controller.dart';
 import 'views/auth/login_page.dart';
 import 'views/dashboard/main_screen.dart';
 
@@ -35,6 +38,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ComplaintController()),
         ChangeNotifierProvider(create: (context) => UserController()),
         ChangeNotifierProvider(create: (context) => EmployerController()),
+        ChangeNotifierProvider(create: (context) => CandidateController()),
+        ChangeNotifierProvider(create: (context) => CategoryController()),
+        ChangeNotifierProvider(create: (context) => SettingsController()),
       ],
       child: MaterialApp(
         title: 'ViecNow Admin',

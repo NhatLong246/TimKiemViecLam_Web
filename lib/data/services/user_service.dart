@@ -28,6 +28,18 @@ class UserService {
         .toList();
   }
 
+  Future<List<UserModel>> fetchCandidates({int limit = 100}) async {
+    final snapshot = await _firestore
+        .collection('users')
+        .where('role', isEqualTo: 'candidate')
+        .limit(limit)
+        .get();
+
+    return snapshot.docs
+        .map((doc) => UserModel.fromMap(doc.data(), doc.id))
+        .toList();
+  }
+
   Future<void> updateUserStatus(String uid, bool isActive) async {
     final docRef = _firestore.collection('users').doc(uid);
     final doc = await docRef.get();

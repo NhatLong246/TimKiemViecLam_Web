@@ -8,6 +8,9 @@ import '../disbursements/disbursement_screen.dart';
 import '../complaints/complaint_screen.dart';
 import '../users/user_management_screen.dart';
 import '../employers/employer_management_screen.dart';
+import '../candidates/candidate_management_screen.dart';
+import '../categories/category_management_screen.dart';
+import '../settings/settings_screen.dart';
 import 'components/side_menu.dart';
 import 'dashboard_screen.dart';
 
@@ -48,6 +51,12 @@ class MainScreen extends StatelessWidget {
         return const UserManagementScreen();
       case MenuAppController.pageEmployers:
         return const EmployerManagementScreen();
+      case MenuAppController.pageCandidates:
+        return const CandidateManagementScreen();
+      case MenuAppController.pageCategories:
+        return const CategoryManagementScreen();
+      case MenuAppController.pageSettings:
+        return const SettingsScreen();
       case MenuAppController.pageDashboard:
       default:
         return DashboardScreen();

@@ -162,36 +162,33 @@
 
 ---
 
-### 6. `jobCategories` — Danh mục nghề nghiệp
-**Path:** `jobCategories/{categoryId}`
+### 6. `categories` — Danh mục nghề nghiệp
+**Path:** `categories/{categoryId}`
 **Web admin dùng để:** Xem, thêm, sửa, xóa danh mục.
 
 | Field | Kiểu | Mô tả |
 |---|---|---|
 | `categoryId` | `String` | Auto-generated |
-| `key` | `String` | Unique key (vd: `"bung_be"`) |
-| `label` | `String` | Tên hiển thị (vd: `"Bưng bê"`) |
-| `iconUrl` | `String?` | URL icon |
+| `name` | `String` | Tên hiển thị (vd: `"Bưng bê"`) |
+| `description` | `String` | Mô tả chi tiết |
+| `iconBase64` | `String?` | Chuỗi Base64 của ảnh/icon |
 | `isActive` | `bool` | Đang hiển thị trong app không |
-| `order` | `int` | Thứ tự hiển thị |
-| `createdAt` | `Timestamp` | Server timestamp |
-
-**Duplicate check:** Kiểm tra `key` không trùng trước khi tạo mới.
+| `createdAt` | `Timestamp` | Server timestamp lúc tạo |
+| `updatedAt` | `Timestamp` | Server timestamp lúc sửa |
 
 ---
 
-### 7. `systemConfig` — Cấu hình hệ thống
-**Path:** `systemConfig/general` (single document)
+### 7. `system_configs` — Cấu hình hệ thống
+**Path:** `system_configs/main` (single document)
 **Web admin dùng để:** Đọc và cập nhật cấu hình toàn hệ thống.
 
 | Field | Kiểu | Mô tả |
 |---|---|---|
-| `platformFeePercent` | `double` | % phí nền tảng (mặc định: 5.0) |
-| `minDepositAmount` | `double` | Số tiền nạp tối thiểu |
-| `minWithdrawalAmount` | `double` | Số tiền rút tối thiểu |
-| `maintenanceMode` | `bool` | Bật/tắt bảo trì |
-| `updatedAt` | `Timestamp` | Lần cập nhật cuối |
-| `updatedBy` | `String` | UID admin cập nhật |
+| `autoApproveJobs` | `bool` | Tự động duyệt tin tuyển dụng |
+| `minimumBalanceToPost` | `double` | Số tiền tối thiểu để đăng bài |
+| `notifyNewUsers` | `bool` | Nhận thông báo user mới |
+| `notifyNewComplaints` | `bool` | Nhận thông báo khiếu nại mới |
+| `notifyNewDisbursements` | `bool` | Nhận thông báo rút tiền mới |
 
 ---
 

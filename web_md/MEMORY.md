@@ -46,6 +46,10 @@
 | J3 | Duyệt tin | `job_post_controller.dart` + `job_post_service.dart` | `status → "approved"`, dialog xác nhận |
 | J4 | Từ chối tin | (cùng controller/service) | `status → "rejected"` + `rejectionReason` tùy chọn |
 | J6 | Tìm kiếm tin | `job_posts_screen.dart` | Theo tiêu đề, danh mục, địa điểm, employerId |
+| DB1 | Quản lý Giải ngân | `views/disbursements/disbursement_screen.dart` | Duyệt / Từ chối giải ngân, lịch sử giao dịch |
+| CP1 | Xử lý Khiếu nại | `views/complaints/complaint_screen.dart` | Quản lý khiếu nại, có chức năng bồi thường/phạt tiền |
+| C1 | Danh mục Ngành nghề | `views/categories/category_management_screen.dart` | Thêm, sửa, ẩn/hiện danh mục |
+| S1 | Cài đặt hệ thống | `views/settings/settings_screen.dart` | Config Firestore, tự duyệt job, min balance, thông báo |
 
 ---
 
@@ -68,6 +72,7 @@
 | 2026-05-15 | Setup ban đầu | MainScreen, SideMenu, Header, SummaryCards, ChartSection, DashboardController, AuthController. Provider + Firebase. |
 | 2026-05-16 | Auth logout | Dialog xác nhận đăng xuất trong `side_menu.dart`. |
 | 2026-05-16 | Tin tuyển dụng | `views/post/`, `JobPostModel`, `JobPostService`, `JobPostController`. Navigation `MenuAppController`. Duyệt/từ chối pending & draft. |
+| 2026-06-05 | Quản lý hệ thống | Hoàn thiện: User, Employer, Candidates. Thêm mới: Quản lý Giải ngân, Khiếu nại (bồi thường/phạt), Danh mục ngành nghề, Cài đặt hệ thống (Firebase config). |
 
 ---
 
