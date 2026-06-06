@@ -113,4 +113,20 @@ class JobPostController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<String?> deleteJobPost(String jobId) async {
+    processingJobId = jobId;
+    notifyListeners();
+
+    try {
+      await _service.deleteJobPost(jobId);
+      _allJobPosts.removeWhere((p) => p.jobId == jobId);
+      return null;
+    } catch (e) {
+      return e.toString();
+    } finally {
+      processingJobId = null;
+      notifyListeners();
+    }
+  }
 }

@@ -6,28 +6,54 @@ import 'components/header.dart';
 import 'components/summary_cards.dart';
 import 'components/chart_section.dart';
 
-class DashboardScreen extends StatelessWidget {
+import 'package:provider/provider.dart';
+import '../../../controllers/dashboard_controller.dart';
+
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({Key? key}) : super(key: key);
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DashboardController>().fetchDashboardData();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(defaultPadding),
+        padding: const EdgeInsets.all(defaultPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Header(),
-            SizedBox(height: defaultPadding),
+            const Header(),
+            const SizedBox(height: defaultPadding),
             Row(
               children: [
                 Icon(Icons.bar_chart, color: primaryColor),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   "Hệ Thống Quản Lý",
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    context.read<DashboardController>().fetchDashboardData();
+                  },
+                  tooltip: 'Làm mới dữ liệu',
+                )
               ],
             ),
-            SizedBox(height: defaultPadding),
+            const SizedBox(height: defaultPadding),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

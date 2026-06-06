@@ -1,54 +1,47 @@
 import 'package:flutter/material.dart';
 
-import '../data/services/complaint_service.dart';
-import '../data/models/complaint_model.dart';
-import '../data/services/transaction_service.dart';
-import '../data/services/notification_service.dart';
+import '../data/models/disbursement_complaint_model.dart';
+import '../data/services/disbursement_complaint_service.dart';
 
 class ComplaintController extends ChangeNotifier {
-  final ComplaintService _service = ComplaintService();
-  final TransactionService _txnService = TransactionService();
-  final NotificationService _notifService = NotificationService();
+  final DisbursementComplaintService _service;
 
-  List<ComplaintModel> _allComplaints = [];
+  ComplaintController({DisbursementComplaintService? service})
+    : _service = service ?? DisbursementComplaintService();
+
+  List<DisbursementComplaintModel> _allComplaints = [];
   String _statusFilter = 'all';
   String _searchQuery = '';
   bool isLoading = false;
   String? errorMessage;
   String? processingComplaintId;
 
-  static const statusFilters = [
-    'all',
-    'pending',
-    'processing',
-    'resolved',
-    'rejected',
-  ];
+  static const statusFilters = ['all', 'pending', 'approved', 'rejected'];
 
   String get statusFilter => _statusFilter;
-  List<ComplaintModel> get complaints => _filteredComplaints;
+  List<DisbursementComplaintModel> get complaints => _filteredComplaints;
   int get totalCount => _allComplaints.length;
 
   int countByStatus(String status) =>
-      _allComplaints.where((c) => c.status == status).length;
+      _allComplaints.where((complaint) => complaint.status == status).length;
 
-  List<ComplaintModel> get _filteredComplaints {
+  List<DisbursementComplaintModel> get _filteredComplaints {
     var list = _allComplaints;
     if (_statusFilter != 'all') {
-      list = list.where((c) => c.status == _statusFilter).toList();
+      list = list.where((item) => item.status == _statusFilter).toList();
     }
     if (_searchQuery.isNotEmpty) {
-      final q = _searchQuery.toLowerCase();
-      list = list.where((c) {
-        final jobTitle = c.jobTitle.toLowerCase();
-        final empName = c.employerName?.toLowerCase() ?? '';
-        final candName = c.candidateName?.toLowerCase() ?? '';
-        return jobTitle.contains(q) ||
-            empName.contains(q) ||
-            candName.contains(q) ||
-            c.jobId.toLowerCase().contains(q) ||
-            c.employerId.toLowerCase().contains(q) ||
-            c.candidateId.toLowerCase().contains(q);
+      final query = _searchQuery.toLowerCase();
+      list = list.where((item) {
+        return item.jobTitle.toLowerCase().contains(query) ||
+            (item.employerName ?? item.employerId).toLowerCase().contains(
+              query,
+            ) ||
+            (item.candidateName ?? item.candidateId).toLowerCase().contains(
+              query,
+            ) ||
+            item.reason.toLowerCase().contains(query) ||
+            item.noticeId.toLowerCase().contains(query);
       }).toList();
     }
     return list;
@@ -58,7 +51,6 @@ class ComplaintController extends ChangeNotifier {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
-
     try {
       _allComplaints = await _service.fetchComplaints();
     } catch (e) {
@@ -81,80 +73,32 @@ class ComplaintController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String?> processComplaint(
-    String complaintId,
-    String status, {
-    String? resolution,
-    String? resolvedBy,
+  Future<String?> resolveComplaint({
+    required DisbursementComplaintModel complaint,
+    required String decision,
+    required double finalCompensation,
+    required String note,
   }) async {
-    processingComplaintId = complaintId;
+    processingComplaintId = complaint.rowId;
     notifyListeners();
-
     try {
-      await _service.updateComplaintStatus(
-        complaintId,
-        status: status,
-        resolution: resolution,
-        resolvedBy: resolvedBy,
+      await _service.resolveComplaint(
+        noticeId: complaint.noticeId,
+        candidateId: complaint.candidateId,
+        decision: decision,
+        finalCompensation: finalCompensation,
+        note: note,
       );
-      final index = _allComplaints.indexWhere((c) => c.complaintId == complaintId);
+      final index = _allComplaints.indexWhere(
+        (item) => item.rowId == complaint.rowId,
+      );
       if (index != -1) {
         _allComplaints[index] = _allComplaints[index].copyWith(
-          status: status,
-          resolution: resolution,
-          resolvedBy: resolvedBy,
+          status: decision,
+          finalCompensation: decision == 'approved' ? finalCompensation : 0,
+          adminNote: note,
         );
       }
-      return null;
-    } catch (e) {
-      return e.toString();
-    } finally {
-      processingComplaintId = null;
-      notifyListeners();
-    }
-  }
-
-  Future<String?> applyPenalty(String complaintId, String employerId, double amount, String reason) async {
-    processingComplaintId = complaintId;
-    notifyListeners();
-    try {
-      await _txnService.createTransaction(
-        userId: employerId,
-        type: 'penalty',
-        amount: amount,
-      );
-      await _notifService.sendNotification(
-        userId: employerId,
-        title: 'Thông báo xử phạt vi phạm',
-        body: 'Tài khoản của bạn đã bị trừ ${amount.toStringAsFixed(0)}đ do: $reason',
-        type: 'penalty',
-        relatedId: complaintId,
-      );
-      return null;
-    } catch (e) {
-      return e.toString();
-    } finally {
-      processingComplaintId = null;
-      notifyListeners();
-    }
-  }
-
-  Future<String?> applyCompensation(String complaintId, String candidateId, double amount, String reason) async {
-    processingComplaintId = complaintId;
-    notifyListeners();
-    try {
-      await _txnService.createTransaction(
-        userId: candidateId,
-        type: 'compensation',
-        amount: amount,
-      );
-      await _notifService.sendNotification(
-        userId: candidateId,
-        title: 'Thông báo bồi thường khiếu nại',
-        body: 'Tài khoản của bạn đã được cộng ${amount.toStringAsFixed(0)}đ với lý do: $reason',
-        type: 'compensation',
-        relatedId: complaintId,
-      );
       return null;
     } catch (e) {
       return e.toString();

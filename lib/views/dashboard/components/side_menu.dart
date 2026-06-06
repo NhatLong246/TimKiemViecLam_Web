@@ -56,6 +56,12 @@ class SideMenu extends StatelessWidget {
             isActive: currentPage == MenuAppController.pageDashboard,
           ),
           DrawerListTile(
+            title: "Báo cáo",
+            icon: Icons.pie_chart,
+            press: () => navigate(MenuAppController.pageReports),
+            isActive: currentPage == MenuAppController.pageReports,
+          ),
+          DrawerListTile(
             title: "Quản lý người dùng",
             icon: Icons.people,
             press: () => navigate(MenuAppController.pageUsers),

@@ -85,24 +85,31 @@ class DashboardController extends ChangeNotifier {
       // Cần có trường 'createdAt' trong collection applications
       try {
         DateTime sevenDaysAgo = DateTime.now().subtract(Duration(days: 7));
-        final recentApps = await _firestore
-            .collection('applications')
-            .where('createdAt', isGreaterThanOrEqualTo: sevenDaysAgo)
-            .get();
+        final recentApps = await _firestore.collection('applications').get();
 
         List<double> tempWeekly = List.filled(7, 0);
         for (var doc in recentApps.docs) {
-          if (doc.data().containsKey('createdAt')) {
-            Timestamp ts = doc['createdAt'];
-            DateTime date = ts.toDate();
-            // weekday: 1 = T2, 7 = CN -> index 0 = T2, 6 = CN
-            int dayIndex = date.weekday - 1;
-            tempWeekly[dayIndex]++;
+          final data = doc.data();
+          if (data.containsKey('createdAt')) {
+            var val = data['createdAt'];
+            DateTime? date;
+            if (val is Timestamp) {
+              date = val.toDate();
+            } else if (val is String) {
+              date = DateTime.tryParse(val);
+            } else if (val is int) {
+              date = DateTime.fromMillisecondsSinceEpoch(val);
+            }
+            
+            if (date != null && date.isAfter(sevenDaysAgo)) {
+              int dayIndex = date.weekday - 1;
+              tempWeekly[dayIndex]++;
+            }
           }
         }
         weeklyApplications = tempWeekly;
       } catch (e) {
-        print("Lấy dữ liệu tuần thất bại (có thể thiếu trường createdAt): $e");
+        print("Lấy dữ liệu tuần thất bại: $e");
       }
     } catch (e) {
       print("Lỗi khi tải dữ liệu từ Firebase: $e");

@@ -85,4 +85,14 @@ class JobPostService {
       throw Exception('Unexpected error: $e');
     }
   }
+
+  Future<void> deleteJobPost(String jobId) async {
+    try {
+      await _db.collection('jobPosts').doc(jobId).delete();
+    } on FirebaseException catch (e) {
+      throw Exception('Firebase error: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
 }

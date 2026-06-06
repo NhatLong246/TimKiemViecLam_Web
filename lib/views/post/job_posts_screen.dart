@@ -171,6 +171,7 @@ class _JobPostsScreenState extends State<JobPostsScreen> {
               processingJobId: controller.processingJobId,
               onApprove: (post) => _handleApprove(context, post),
               onReject: (post) => _handleReject(context, post),
+              onDelete: (post) => _handleDelete(context, post),
             ),
         ],
       ),
@@ -274,6 +275,46 @@ class _JobPostsScreenState extends State<JobPostsScreen> {
         const SnackBar(
           content: Text('Đã từ chối tin tuyển dụng'),
           backgroundColor: Colors.orange,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: $error'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  Future<void> _handleDelete(BuildContext context, JobPostModel post) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xoá tin tuyển dụng'),
+        content: Text('Bạn có chắc chắn muốn xoá tin "${post.title}" vĩnh viễn không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Huỷ'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Xoá'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final error =
+        await context.read<JobPostController>().deleteJobPost(post.jobId);
+    if (!context.mounted) return;
+
+    if (error == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đã xoá tin tuyển dụng'),
+          backgroundColor: Colors.green,
         ),
       );
     } else {

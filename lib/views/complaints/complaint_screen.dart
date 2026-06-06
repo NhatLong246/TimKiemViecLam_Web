@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../constants.dart';
 import '../../controllers/complaint_controller.dart';
-import '../../data/models/complaint_model.dart';
+import '../../data/models/disbursement_complaint_model.dart';
 import '../dashboard/components/header.dart';
 import '../post/components/job_status_filter_chip.dart';
 import 'components/complaint_detail_dialog.dart';
@@ -48,11 +48,10 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                   Icon(Icons.report_problem, color: primaryColor),
                   const SizedBox(width: 8),
                   Text(
-                    'Xử lý Khiếu nại',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    'Khiếu nại giải ngân',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const Spacer(),
                   if (!controller.isLoading)
@@ -62,6 +61,10 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                       onPressed: controller.fetchComplaints,
                     ),
                 ],
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Duyệt hoặc từ chối từng ứng viên bị NTD khiếu nại trước khi giải ngân.',
               ),
               const SizedBox(height: defaultPadding),
               _buildStatusFilters(controller),
@@ -79,17 +82,15 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
       spacing: 8,
       runSpacing: 8,
       children: ComplaintController.statusFilters.map((status) {
-        final isSelected = controller.statusFilter == status;
         final count = status == 'all'
             ? controller.totalCount
             : controller.countByStatus(status);
         final label = status == 'all'
             ? 'Tất cả ($count)'
-            : '${ComplaintModel.statusLabel(status)} ($count)';
-
+            : '${DisbursementComplaintModel.statusLabel(status)} ($count)';
         return JobStatusFilterChip(
           label: label,
-          isSelected: isSelected,
+          isSelected: controller.statusFilter == status,
           onTap: () => controller.setStatusFilter(status),
         );
       }).toList(),
@@ -97,7 +98,9 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
   }
 
   Widget _buildContentCard(
-      BuildContext context, ComplaintController controller) {
+    BuildContext context,
+    ComplaintController controller,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(defaultPadding),
@@ -111,12 +114,12 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
           Row(
             children: [
               Text(
-                'Danh sách khiếu nại',
+                'Danh sách khiếu nại từ NTD',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const Spacer(),
               SizedBox(
-                width: 280,
+                width: 300,
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
@@ -141,29 +144,12 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
               ),
             )
           else if (controller.errorMessage != null)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(48),
-                child: Column(
-                  children: [
-                    Icon(Icons.error_outline,
-                        size: 48, color: Colors.red.shade300),
-                    const SizedBox(height: 12),
-                    Text('Lỗi: ${controller.errorMessage}'),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      onPressed: controller.fetchComplaints,
-                      child: const Text('Thử lại'),
-                    ),
-                  ],
-                ),
-              ),
-            )
+            _ErrorState(controller: controller)
           else if (controller.complaints.isEmpty)
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(48),
-                child: Text('Không có dữ liệu'),
+                child: Text('Không có khiếu nại giải ngân'),
               ),
             )
           else
@@ -179,29 +165,33 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
       child: DataTable(
         showCheckboxColumn: false,
         columns: const [
-          DataColumn(label: Text('Mã KN')),
+          DataColumn(label: Text('Mã yêu cầu')),
           DataColumn(label: Text('Công việc')),
           DataColumn(label: Text('Ứng viên')),
           DataColumn(label: Text('Nhà tuyển dụng')),
+          DataColumn(label: Text('Đề xuất đền bù')),
           DataColumn(label: Text('Trạng thái')),
           DataColumn(label: Text('Thao tác')),
         ],
         rows: controller.complaints.map((complaint) {
           final isProcessing =
-              controller.processingComplaintId == complaint.complaintId;
-
+              controller.processingComplaintId == complaint.rowId;
           return DataRow(
             onSelectChanged: (_) => _showDetailDialog(context, complaint),
             cells: [
-              DataCell(Text(
-                complaint.complaintId.substring(0, 8),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              )),
+              DataCell(
+                Text(
+                  _shortId(complaint.noticeId),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
               DataCell(
                 SizedBox(
-                  width: 200,
+                  width: 190,
                   child: Text(
-                    complaint.jobTitle,
+                    complaint.jobTitle.isEmpty
+                        ? complaint.jobId
+                        : complaint.jobTitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -209,16 +199,20 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
               ),
               DataCell(Text(complaint.candidateName ?? complaint.candidateId)),
               DataCell(Text(complaint.employerName ?? complaint.employerId)),
-              DataCell(Text(ComplaintModel.statusLabel(complaint.status))),
+              DataCell(Text(_money(complaint.proposedCompensation))),
+              DataCell(
+                Text(DisbursementComplaintModel.statusLabel(complaint.status)),
+              ),
               DataCell(
                 isProcessing
                     ? const SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2))
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : TextButton(
                         onPressed: () => _showDetailDialog(context, complaint),
-                        child: const Text('Xử lý'),
+                        child: Text(complaint.isPending ? 'Xử lý' : 'Xem'),
                       ),
               ),
             ],
@@ -228,10 +222,45 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
     );
   }
 
-  void _showDetailDialog(BuildContext context, ComplaintModel complaint) {
+  void _showDetailDialog(
+    BuildContext context,
+    DisbursementComplaintModel complaint,
+  ) {
     showDialog(
       context: context,
       builder: (_) => ComplaintDetailDialog(complaint: complaint),
+    );
+  }
+
+  static String _shortId(String value) =>
+      value.length <= 8 ? value : value.substring(0, 8);
+
+  static String _money(double value) => '${value.toStringAsFixed(0)}đ';
+}
+
+class _ErrorState extends StatelessWidget {
+  final ComplaintController controller;
+
+  const _ErrorState({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(48),
+        child: Column(
+          children: [
+            Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
+            const SizedBox(height: 12),
+            Text('Lỗi: ${controller.errorMessage}'),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: controller.fetchComplaints,
+              child: const Text('Thử lại'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

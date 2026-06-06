@@ -10,12 +10,14 @@ class JobPostTable extends StatelessWidget {
     this.processingJobId,
     this.onApprove,
     this.onReject,
+    this.onDelete,
   });
 
   final List<JobPostModel> posts;
   final String? processingJobId;
   final void Function(JobPostModel post)? onApprove;
   final void Function(JobPostModel post)? onReject;
+  final void Function(JobPostModel post)? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -84,13 +86,6 @@ class JobPostTable extends StatelessWidget {
     bool canModerate,
     bool isProcessing,
   ) {
-    if (!canModerate) {
-      return Text(
-        '—',
-        style: TextStyle(color: Colors.grey.shade500),
-      );
-    }
-
     if (isProcessing) {
       return const SizedBox(
         width: 24,
@@ -102,18 +97,28 @@ class JobPostTable extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        TextButton.icon(
-          onPressed: onApprove == null ? null : () => onApprove!(post),
-          icon: const Icon(Icons.check_circle_outline, size: 18),
-          label: const Text('Duyệt'),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.green.shade700,
+        if (canModerate) ...[
+          TextButton.icon(
+            onPressed: onApprove == null ? null : () => onApprove!(post),
+            icon: const Icon(Icons.check_circle_outline, size: 18),
+            label: const Text('Duyệt'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.green.shade700,
+            ),
           ),
-        ),
+          TextButton.icon(
+            onPressed: onReject == null ? null : () => onReject!(post),
+            icon: const Icon(Icons.cancel_outlined, size: 18),
+            label: const Text('Từ chối'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.orange.shade700,
+            ),
+          ),
+        ],
         TextButton.icon(
-          onPressed: onReject == null ? null : () => onReject!(post),
-          icon: const Icon(Icons.cancel_outlined, size: 18),
-          label: const Text('Từ chối'),
+          onPressed: onDelete == null ? null : () => onDelete!(post),
+          icon: const Icon(Icons.delete_outline, size: 18),
+          label: const Text('Xoá'),
           style: TextButton.styleFrom(
             foregroundColor: Colors.red.shade700,
           ),

@@ -11,6 +11,7 @@ import '../employers/employer_management_screen.dart';
 import '../candidates/candidate_management_screen.dart';
 import '../categories/category_management_screen.dart';
 import '../settings/settings_screen.dart';
+import '../reports/report_screen.dart';
 import 'components/side_menu.dart';
 import 'dashboard_screen.dart';
 
@@ -57,6 +58,8 @@ class MainScreen extends StatelessWidget {
         return const CategoryManagementScreen();
       case MenuAppController.pageSettings:
         return const SettingsScreen();
+      case MenuAppController.pageReports:
+        return const ReportScreen();
       case MenuAppController.pageDashboard:
       default:
         return DashboardScreen();
