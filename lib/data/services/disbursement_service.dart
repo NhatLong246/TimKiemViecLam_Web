@@ -63,6 +63,27 @@ class DisbursementService {
     }
   }
 
+  Future<double> fetchFullTimeCommission() async {
+    try {
+      final snapshot = await _db
+          .collection('walletTransactions')
+          .where('type', isEqualTo: 'full_time_referral_fee')
+          .get();
+
+      double totalCommission = 0;
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        if (data['status'] == 'completed') {
+          final amount = (data['amount'] ?? 0) as num;
+          totalCommission += amount.toDouble();
+        }
+      }
+      return totalCommission;
+    } catch (e) {
+      return 0; // Return 0 if collection is missing or any other error
+    }
+  }
+
   Future<void> updateDisbursementStatus(
     String noticeId, {
     required bool adminAck,

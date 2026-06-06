@@ -50,84 +50,69 @@ class ChartSection extends StatelessWidget {
                     SizedBox(height: defaultPadding),
                     SizedBox(
                       height: 300,
-                      child: LineChart(
-                        LineChartData(
-                          gridData: FlGridData(show: false),
-                          titlesData: FlTitlesData(
-                            show: true,
-                            rightTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            topTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                getTitlesWidget: (value, meta) {
-                                  const style = TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                  );
-                                  Widget text;
-                                  switch (value.toInt()) {
-                                    case 0:
-                                      text = Text('T2', style: style);
-                                      break;
-                                    case 1:
-                                      text = Text('T3', style: style);
-                                      break;
-                                    case 2:
-                                      text = Text('T4', style: style);
-                                      break;
-                                    case 3:
-                                      text = Text('T5', style: style);
-                                      break;
-                                    case 4:
-                                      text = Text('T6', style: style);
-                                      break;
-                                    case 5:
-                                      text = Text('T7', style: style);
-                                      break;
-                                    case 6:
-                                      text = Text('CN', style: style);
-                                      break;
-                                    default:
-                                      text = Text('', style: style);
-                                      break;
-                                  }
-                                  return SideTitleWidget(
-                                    meta: meta,
-                                    child: text,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          borderData: FlBorderData(show: false),
-                          lineBarsData: [
-                            LineChartBarData(
-                              spots: [
-                                FlSpot(0, controller.weeklyApplications[0]),
-                                FlSpot(1, controller.weeklyApplications[1]),
-                                FlSpot(2, controller.weeklyApplications[2]),
-                                FlSpot(3, controller.weeklyApplications[3]),
-                                FlSpot(4, controller.weeklyApplications[4]),
-                                FlSpot(5, controller.weeklyApplications[5]),
-                                FlSpot(6, controller.weeklyApplications[6]),
-                              ],
-                              isCurved: true,
-                              color: primaryColor,
-                              barWidth: 4,
-                              isStrokeCapRound: true,
-                              dotData: FlDotData(show: false),
-                              belowBarData: BarAreaData(
+                      child: Builder(
+                        builder: (context) {
+                          double maxApp = controller.weeklyApplications.reduce((a, b) => a > b ? a : b);
+                          double maxY = maxApp == 0 ? 10 : maxApp * 1.2;
+                          return BarChart(
+                            BarChartData(
+                              alignment: BarChartAlignment.spaceAround,
+                              maxY: maxY,
+                              gridData: FlGridData(show: false),
+                              titlesData: FlTitlesData(
                                 show: true,
-                                color: primaryColor.withOpacity(0.1),
+                                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                leftTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 30,
+                                    getTitlesWidget: (value, meta) {
+                                      if (value % 1 == 0 && value != maxY) {
+                                        return Text(value.toInt().toString(), style: const TextStyle(color: Colors.grey, fontSize: 12));
+                                      }
+                                      return const SizedBox();
+                                    },
+                                  ),
+                                ),
+                                bottomTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    getTitlesWidget: (value, meta) {
+                                      const style = TextStyle(color: Colors.grey, fontSize: 12);
+                                      Widget text;
+                                      switch (value.toInt()) {
+                                        case 0: text = const Text('T2', style: style); break;
+                                        case 1: text = const Text('T3', style: style); break;
+                                        case 2: text = const Text('T4', style: style); break;
+                                        case 3: text = const Text('T5', style: style); break;
+                                        case 4: text = const Text('T6', style: style); break;
+                                        case 5: text = const Text('T7', style: style); break;
+                                        case 6: text = const Text('CN', style: style); break;
+                                        default: text = const Text('', style: style); break;
+                                      }
+                                      return SideTitleWidget(meta: meta, child: text);
+                                    },
+                                  ),
+                                ),
                               ),
+                              borderData: FlBorderData(show: false),
+                              barGroups: List.generate(7, (index) {
+                                return BarChartGroupData(
+                                  x: index,
+                                  barRods: [
+                                    BarChartRodData(
+                                      toY: controller.weeklyApplications[index],
+                                      color: primaryColor,
+                                      width: 16,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ],
+                                );
+                              }),
                             ),
-                          ],
-                        ),
+                          );
+                        }
                       ),
                     ),
                   ],

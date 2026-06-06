@@ -90,8 +90,8 @@ class DashboardController extends ChangeNotifier {
         List<double> tempWeekly = List.filled(7, 0);
         for (var doc in recentApps.docs) {
           final data = doc.data();
-          if (data.containsKey('createdAt')) {
-            var val = data['createdAt'];
+          if (data.containsKey('appliedAt')) {
+            var val = data['appliedAt'];
             DateTime? date;
             if (val is Timestamp) {
               date = val.toDate();

@@ -12,6 +12,7 @@ class DisbursementController extends ChangeNotifier {
   bool isLoading = false;
   String? errorMessage;
   String? processingNoticeId;
+  double totalFullTimeCommission = 0;
 
   static const statusFilters = [
     'all',
@@ -53,9 +54,11 @@ class DisbursementController extends ChangeNotifier {
 
     try {
       _allNotices = await _service.fetchDisbursements();
+      totalFullTimeCommission = await _service.fetchFullTimeCommission();
     } catch (e) {
       errorMessage = e.toString();
       _allNotices = [];
+      totalFullTimeCommission = 0;
     } finally {
       isLoading = false;
       notifyListeners();

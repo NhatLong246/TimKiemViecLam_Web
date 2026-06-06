@@ -130,7 +130,7 @@ class _ReportScreenState extends State<ReportScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Báo cáo Giải Ngân",
+                "Báo cáo Tài chính",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: defaultPadding),
@@ -153,6 +153,16 @@ class _ReportScreenState extends State<ReportScreen> {
                       subtitle: "$pendingCount giao dịch",
                       color: Colors.orange,
                       icon: Icons.hourglass_empty,
+                    ),
+                  ),
+                  const SizedBox(width: defaultPadding),
+                  Expanded(
+                    child: _buildStatCard(
+                      title: "Hoa hồng Full-time",
+                      value: _formatCurrency(controller.totalFullTimeCommission),
+                      subtitle: "Từ phí giới thiệu",
+                      color: Colors.blue,
+                      icon: Icons.monetization_on_outlined,
                     ),
                   ),
                 ],
