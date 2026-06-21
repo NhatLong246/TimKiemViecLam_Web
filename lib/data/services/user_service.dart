@@ -1,74 +1,75 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
+import 'api_client.dart';
 
 class UserService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final ApiClient _apiClient = ApiClient();
 
   Future<List<UserModel>> fetchUsers({int limit = 100}) async {
-    final snapshot = await _firestore
-        .collection('users')
-        .orderBy('createdAt', descending: true)
-        .limit(limit)
-        .get();
-
-    return snapshot.docs
-        .map((doc) => UserModel.fromMap(doc.data(), doc.id))
-        .toList();
+    try {
+      final response = await _apiClient.get('/users?limit=$limit');
+      if (response is List) {
+        return response.map((data) => UserModel.fromMap(data, data['uid'] ?? '')).toList();
+      }
+      return [];
+    } catch (e) {
+      throw Exception('Lỗi khi lấy danh sách người dùng: $e');
+    }
   }
 
   Future<UserModel?> getUserById(String uid) async {
-    final doc = await _firestore.collection('users').doc(uid).get();
-    if (!doc.exists || doc.data() == null) return null;
-    return UserModel.fromMap(doc.data()!, doc.id);
+    try {
+      final response = await _apiClient.get('/users/$uid');
+      if (response != null) {
+        return UserModel.fromMap(response, response['uid'] ?? uid);
+      }
+      return null;
+    } catch (e) {
+      // Bỏ qua lỗi 404
+      return null;
+    }
   }
 
   Future<List<UserModel>> fetchEmployers({int limit = 100}) async {
-    final snapshot = await _firestore
-        .collection('users')
-        .where('role', isEqualTo: 'employer')
-        .limit(limit)
-        .get();
-
-    return snapshot.docs
-        .map((doc) => UserModel.fromMap(doc.data(), doc.id))
-        .toList();
+    try {
+      final response = await _apiClient.get('/users?role=employer&limit=$limit');
+      if (response is List) {
+        return response.map((data) => UserModel.fromMap(data, data['uid'] ?? '')).toList();
+      }
+      return [];
+    } catch (e) {
+      throw Exception('Lỗi khi lấy danh sách nhà tuyển dụng: $e');
+    }
   }
 
   Future<List<UserModel>> fetchCandidates({int limit = 100}) async {
-    final snapshot = await _firestore
-        .collection('users')
-        .where('role', isEqualTo: 'candidate')
-        .limit(limit)
-        .get();
-
-    return snapshot.docs
-        .map((doc) => UserModel.fromMap(doc.data(), doc.id))
-        .toList();
+    try {
+      final response = await _apiClient.get('/users?role=candidate&limit=$limit');
+      if (response is List) {
+        return response.map((data) => UserModel.fromMap(data, data['uid'] ?? '')).toList();
+      }
+      return [];
+    } catch (e) {
+      throw Exception('Lỗi khi lấy danh sách ứng viên: $e');
+    }
   }
 
   Future<void> updateUserStatus(String uid, bool isActive) async {
-    final docRef = _firestore.collection('users').doc(uid);
-    final doc = await docRef.get();
-
-    if (!doc.exists) {
-      throw Exception('Người dùng không tồn tại');
+    try {
+      await _apiClient.patch('/users/$uid/status', body: {
+        'isActive': isActive,
+      });
+    } catch (e) {
+      throw Exception('Lỗi khi cập nhật trạng thái người dùng: $e');
     }
-
-    await docRef.update({
-      'isActive': isActive,
-    });
   }
 
   Future<void> updateUserVerification(String uid, bool isVerified) async {
-    final docRef = _firestore.collection('users').doc(uid);
-    final doc = await docRef.get();
-
-    if (!doc.exists) {
-      throw Exception('Người dùng không tồn tại');
+    try {
+      await _apiClient.patch('/users/$uid/verification', body: {
+        'isVerified': isVerified,
+      });
+    } catch (e) {
+      throw Exception('Lỗi khi cập nhật trạng thái xác thực: $e');
     }
-
-    await docRef.update({
-      'isVerified': isVerified,
-    });
   }
 }

@@ -56,3 +56,8 @@ app.*.map.json
 
 # Firebase - sensitive config files (chứa API keys)
 lib/firebase_options.dart
+
+# Node.js Backend
+backend/node_modules/
+backend/firebase-key.json
+backend/.env

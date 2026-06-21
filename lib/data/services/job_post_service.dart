@@ -1,60 +1,46 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../models/job_post_model.dart';
+import 'api_client.dart';
 
 class JobPostService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final ApiClient _apiClient = ApiClient();
 
   Future<List<JobPostModel>> fetchJobPosts({int limit = 20}) async {
     try {
-      QuerySnapshot<Map<String, dynamic>> snapshot;
-      try {
-        snapshot = await _db
-            .collection('jobPosts')
-            .orderBy('createdAt', descending: true)
-            .limit(limit)
-            .get();
-      } on FirebaseException {
-        snapshot = await _db.collection('jobPosts').limit(limit).get();
+      final response = await _apiClient.get('/jobs?limit=$limit');
+      if (response is List) {
+        return response.map((data) {
+          final mappedData = Map<String, dynamic>.from(data);
+          mappedData['jobId'] = mappedData['jobId'] ?? mappedData['id'] ?? '';
+          return JobPostModel.fromMap(mappedData);
+        }).toList();
       }
-
-      return snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        data['jobId'] = data['jobId'] as String? ?? doc.id;
-        return JobPostModel.fromMap(data);
-      }).toList();
-    } on FirebaseException catch (e) {
-      throw Exception('Firebase error: ${e.message}');
+      return [];
     } catch (e) {
-      throw Exception('Unexpected error: $e');
+      throw Exception('Lỗi khi tải danh sách tin tuyển dụng: $e');
     }
   }
 
   Future<List<JobPostModel>> fetchJobPostsByEmployer(String employerId, {int limit = 50}) async {
     try {
-      final snapshot = await _db
-          .collection('jobPosts')
-          .where('employerId', isEqualTo: employerId)
-          .limit(limit)
-          .get();
-
-      final jobs = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        data['jobId'] = data['jobId'] as String? ?? doc.id;
-        return JobPostModel.fromMap(data);
-      }).toList();
-
-      jobs.sort((a, b) {
-        if (a.createdAt == null && b.createdAt == null) return 0;
-        if (a.createdAt == null) return 1;
-        if (b.createdAt == null) return -1;
-        return b.createdAt!.compareTo(a.createdAt!);
-      });
-      return jobs;
-    } on FirebaseException catch (e) {
-      throw Exception('Firebase error: ${e.message}');
+      final response = await _apiClient.get('/jobs?employerId=$employerId&limit=$limit');
+      if (response is List) {
+        final jobs = response.map((data) {
+          final mappedData = Map<String, dynamic>.from(data);
+          mappedData['jobId'] = mappedData['jobId'] ?? mappedData['id'] ?? '';
+          return JobPostModel.fromMap(mappedData);
+        }).toList();
+        
+        jobs.sort((a, b) {
+          if (a.createdAt == null && b.createdAt == null) return 0;
+          if (a.createdAt == null) return 1;
+          if (b.createdAt == null) return -1;
+          return b.createdAt!.compareTo(a.createdAt!);
+        });
+        return jobs;
+      }
+      return [];
     } catch (e) {
-      throw Exception('Unexpected error: $e');
+      throw Exception('Lỗi khi tải danh sách tin tuyển dụng của nhà tuyển dụng: $e');
     }
   }
 
@@ -64,35 +50,24 @@ class JobPostService {
     String? rejectionReason,
   }) async {
     try {
-      final docRef = _db.collection('jobPosts').doc(jobId);
-      final snapshot = await docRef.get();
-      if (!snapshot.exists) {
-        throw Exception('Tin tuyển dụng không tồn tại');
-      }
-
       final data = <String, dynamic>{
         'status': status,
-        'updatedAt': FieldValue.serverTimestamp(),
       };
       if (rejectionReason != null && rejectionReason.isNotEmpty) {
         data['rejectionReason'] = rejectionReason;
       }
 
-      await docRef.update(data);
-    } on FirebaseException catch (e) {
-      throw Exception('Firebase error: ${e.message}');
+      await _apiClient.patch('/jobs/$jobId/status', body: data);
     } catch (e) {
-      throw Exception('Unexpected error: $e');
+      throw Exception('Lỗi khi cập nhật trạng thái tin tuyển dụng: $e');
     }
   }
 
   Future<void> deleteJobPost(String jobId) async {
     try {
-      await _db.collection('jobPosts').doc(jobId).delete();
-    } on FirebaseException catch (e) {
-      throw Exception('Firebase error: ${e.message}');
+      await _apiClient.delete('/jobs/$jobId');
     } catch (e) {
-      throw Exception('Unexpected error: $e');
+      throw Exception('Lỗi khi xóa tin tuyển dụng: $e');
     }
   }
 }
