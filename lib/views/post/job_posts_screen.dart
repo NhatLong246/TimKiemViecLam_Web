@@ -7,6 +7,7 @@ import '../../data/models/job_post_model.dart';
 import '../dashboard/components/header.dart';
 import 'components/job_post_table.dart';
 import 'components/job_status_filter_chip.dart';
+import 'components/job_detail_and_moderate_dialog.dart';
 
 class JobPostsScreen extends StatefulWidget {
   const JobPostsScreen({super.key});
@@ -169,8 +170,7 @@ class _JobPostsScreenState extends State<JobPostsScreen> {
             JobPostTable(
               posts: controller.jobPosts,
               processingJobId: controller.processingJobId,
-              onApprove: (post) => _handleApprove(context, post),
-              onReject: (post) => _handleReject(context, post),
+              onViewDetails: (post) => _showJobDetailDialog(context, post),
               onDelete: (post) => _handleDelete(context, post),
             ),
         ],
@@ -178,28 +178,18 @@ class _JobPostsScreenState extends State<JobPostsScreen> {
     );
   }
 
-  Future<void> _handleApprove(BuildContext context, JobPostModel post) async {
-    final confirmed = await showDialog<bool>(
+  void _showJobDetailDialog(BuildContext context, JobPostModel post) {
+    showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Duyệt tin tuyển dụng'),
-        content: Text('Bạn có chắc muốn duyệt tin "${post.title}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Huỷ'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Duyệt'),
-          ),
-        ],
+      builder: (ctx) => JobDetailAndModerateDialog(
+        jobPost: post,
+        onApprove: (p) => _executeApprove(context, p),
+        onReject: (p, reason) => _executeReject(context, p, reason),
       ),
     );
+  }
 
-    if (confirmed != true || !context.mounted) return;
-
+  Future<void> _executeApprove(BuildContext context, JobPostModel post) async {
     final error =
         await context.read<JobPostController>().approveJobPost(post.jobId);
     if (!context.mounted) return;
@@ -218,52 +208,7 @@ class _JobPostsScreenState extends State<JobPostsScreen> {
     }
   }
 
-  Future<void> _handleReject(BuildContext context, JobPostModel post) async {
-    final reasonController = TextEditingController();
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Từ chối tin tuyển dụng'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Từ chối tin "${post.title}"?'),
-            const SizedBox(height: 12),
-            TextField(
-              controller: reasonController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Lý do từ chối (tuỳ chọn)',
-                border: OutlineInputBorder(),
-                alignLabelWithHint: true,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Huỷ'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Từ chối'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !context.mounted) {
-      reasonController.dispose();
-      return;
-    }
-
-    final reason = reasonController.text.trim();
-    reasonController.dispose();
-
+  Future<void> _executeReject(BuildContext context, JobPostModel post, String reason) async {
     final error = await context.read<JobPostController>().rejectJobPost(
           post.jobId,
           reason: reason.isEmpty ? null : reason,

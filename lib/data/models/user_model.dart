@@ -13,6 +13,10 @@ class UserModel {
   final bool isActive;
   final DateTime? createdAt;
   final String? companyName;
+  final String? companyAddress;
+  final String? companyTaxCode;
+  final String? companySize;
+  final String? businessType;
   final double walletBalance;
 
   UserModel({
@@ -28,6 +32,10 @@ class UserModel {
     this.isActive = true,
     this.createdAt,
     this.companyName,
+    this.companyAddress,
+    this.companyTaxCode,
+    this.companySize,
+    this.businessType,
     this.walletBalance = 0.0,
   });
 
@@ -50,6 +58,10 @@ class UserModel {
       isActive: map['isActive'] as bool? ?? true,
       createdAt: toDateTime(map['createdAt']),
       companyName: map['companyName'] as String?,
+      companyAddress: map['companyAddress'] as String?,
+      companyTaxCode: map['companyTaxCode'] as String?,
+      companySize: map['companySize'] as String?,
+      businessType: map['businessType'] as String?,
       walletBalance: (map['walletBalance'] as num?)?.toDouble() ?? 0.0,
     );
   }
@@ -81,6 +93,10 @@ class UserModel {
     bool? isActive,
     DateTime? createdAt,
     String? companyName,
+    String? companyAddress,
+    String? companyTaxCode,
+    String? companySize,
+    String? businessType,
     double? walletBalance,
   }) {
     return UserModel(
@@ -96,6 +112,10 @@ class UserModel {
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       companyName: companyName ?? this.companyName,
+      companyAddress: companyAddress ?? this.companyAddress,
+      companyTaxCode: companyTaxCode ?? this.companyTaxCode,
+      companySize: companySize ?? this.companySize,
+      businessType: businessType ?? this.businessType,
       walletBalance: walletBalance ?? this.walletBalance,
     );
   }

@@ -8,15 +8,13 @@ class JobPostTable extends StatelessWidget {
     super.key,
     required this.posts,
     this.processingJobId,
-    this.onApprove,
-    this.onReject,
+    this.onViewDetails,
     this.onDelete,
   });
 
   final List<JobPostModel> posts;
   final String? processingJobId;
-  final void Function(JobPostModel post)? onApprove;
-  final void Function(JobPostModel post)? onReject;
+  final void Function(JobPostModel post)? onViewDetails;
   final void Function(JobPostModel post)? onDelete;
 
   @override
@@ -97,24 +95,14 @@ class JobPostTable extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (canModerate) ...[
-          TextButton.icon(
-            onPressed: onApprove == null ? null : () => onApprove!(post),
-            icon: const Icon(Icons.check_circle_outline, size: 18),
-            label: const Text('Duyệt'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.green.shade700,
-            ),
+        TextButton.icon(
+          onPressed: onViewDetails == null ? null : () => onViewDetails!(post),
+          icon: const Icon(Icons.visibility, size: 18),
+          label: Text(canModerate ? 'Xem & Duyệt' : 'Xem chi tiết'),
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.blue.shade700,
           ),
-          TextButton.icon(
-            onPressed: onReject == null ? null : () => onReject!(post),
-            icon: const Icon(Icons.cancel_outlined, size: 18),
-            label: const Text('Từ chối'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.orange.shade700,
-            ),
-          ),
-        ],
+        ),
         TextButton.icon(
           onPressed: onDelete == null ? null : () => onDelete!(post),
           icon: const Icon(Icons.delete_outline, size: 18),

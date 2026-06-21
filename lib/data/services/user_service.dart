@@ -16,6 +16,12 @@ class UserService {
         .toList();
   }
 
+  Future<UserModel?> getUserById(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+    if (!doc.exists || doc.data() == null) return null;
+    return UserModel.fromMap(doc.data()!, doc.id);
+  }
+
   Future<List<UserModel>> fetchEmployers({int limit = 100}) async {
     final snapshot = await _firestore
         .collection('users')

@@ -8,6 +8,7 @@ import 'components/chart_section.dart';
 
 import 'package:provider/provider.dart';
 import '../../../controllers/dashboard_controller.dart';
+import '../components/date_filter_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -44,6 +45,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
+                DateFilterWidget(
+                  onDateRangeChanged: (start, end) {
+                    context.read<DashboardController>().setDateFilter(start, end);
+                  },
+                ),
+                const SizedBox(width: 16),
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   onPressed: () {

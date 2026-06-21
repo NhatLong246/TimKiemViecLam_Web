@@ -9,6 +9,8 @@ class DisbursementController extends ChangeNotifier {
   List<DisbursementModel> _allNotices = [];
   String _statusFilter = 'all';
   String _searchQuery = '';
+  DateTime? filterStartDate;
+  DateTime? filterEndDate;
   bool isLoading = false;
   String? errorMessage;
   String? processingNoticeId;
@@ -44,6 +46,12 @@ class DisbursementController extends ChangeNotifier {
             n.employerId.toLowerCase().contains(q);
       }).toList();
     }
+    if (filterStartDate != null && filterEndDate != null) {
+      list = list.where((n) {
+        if (n.createdAt == null) return false;
+        return n.createdAt!.compareTo(filterStartDate!) >= 0 && n.createdAt!.compareTo(filterEndDate!) <= 0;
+      }).toList();
+    }
     return list;
   }
 
@@ -73,6 +81,12 @@ class DisbursementController extends ChangeNotifier {
 
   void setSearchQuery(String query) {
     _searchQuery = query.trim();
+    notifyListeners();
+  }
+
+  void setDateFilter(DateTime? start, DateTime? end) {
+    filterStartDate = start;
+    filterEndDate = end;
     notifyListeners();
   }
 

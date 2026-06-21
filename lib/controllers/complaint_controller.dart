@@ -12,6 +12,8 @@ class ComplaintController extends ChangeNotifier {
   List<DisbursementComplaintModel> _allComplaints = [];
   String _statusFilter = 'all';
   String _searchQuery = '';
+  DateTime? filterStartDate;
+  DateTime? filterEndDate;
   bool isLoading = false;
   String? errorMessage;
   String? processingComplaintId;
@@ -44,6 +46,12 @@ class ComplaintController extends ChangeNotifier {
             item.noticeId.toLowerCase().contains(query);
       }).toList();
     }
+    if (filterStartDate != null && filterEndDate != null) {
+      list = list.where((item) {
+        if (item.createdAt == null) return false;
+        return item.createdAt!.compareTo(filterStartDate!) >= 0 && item.createdAt!.compareTo(filterEndDate!) <= 0;
+      }).toList();
+    }
     return list;
   }
 
@@ -70,6 +78,12 @@ class ComplaintController extends ChangeNotifier {
 
   void setSearchQuery(String query) {
     _searchQuery = query.trim();
+    notifyListeners();
+  }
+
+  void setDateFilter(DateTime? start, DateTime? end) {
+    filterStartDate = start;
+    filterEndDate = end;
     notifyListeners();
   }
 

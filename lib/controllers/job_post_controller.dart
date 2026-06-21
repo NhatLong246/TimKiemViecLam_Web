@@ -9,6 +9,8 @@ class JobPostController extends ChangeNotifier {
   List<JobPostModel> _allJobPosts = [];
   String _statusFilter = 'all';
   String _searchQuery = '';
+  DateTime? filterStartDate;
+  DateTime? filterEndDate;
   bool isLoading = false;
   String? errorMessage;
   String? processingJobId;
@@ -49,6 +51,12 @@ class JobPostController extends ChangeNotifier {
           )
           .toList();
     }
+    if (filterStartDate != null && filterEndDate != null) {
+      list = list.where((p) {
+        if (p.createdAt == null) return false;
+        return p.createdAt!.compareTo(filterStartDate!) >= 0 && p.createdAt!.compareTo(filterEndDate!) <= 0;
+      }).toList();
+    }
     return list;
   }
 
@@ -76,6 +84,12 @@ class JobPostController extends ChangeNotifier {
 
   void setSearchQuery(String query) {
     _searchQuery = query.trim();
+    notifyListeners();
+  }
+
+  void setDateFilter(DateTime? start, DateTime? end) {
+    filterStartDate = start;
+    filterEndDate = end;
     notifyListeners();
   }
 

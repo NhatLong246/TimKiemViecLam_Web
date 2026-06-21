@@ -8,6 +8,7 @@ import '../../controllers/job_post_controller.dart';
 import '../../controllers/complaint_controller.dart';
 import '../../controllers/disbursement_controller.dart';
 import '../dashboard/components/header.dart';
+import '../components/date_filter_widget.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
@@ -58,6 +59,14 @@ class _ReportScreenState extends State<ReportScreen> {
                       .textTheme
                       .titleLarge
                       ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                DateFilterWidget(
+                  onDateRangeChanged: (start, end) {
+                    context.read<JobPostController>().setDateFilter(start, end);
+                    context.read<ComplaintController>().setDateFilter(start, end);
+                    context.read<DisbursementController>().setDateFilter(start, end);
+                  },
                 ),
               ],
             ),

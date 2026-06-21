@@ -79,6 +79,22 @@ class UserController extends ChangeNotifier {
     }
   }
 
+  Future<UserModel?> getUserById(String uid) async {
+    // Try to find it in the cached list first
+    try {
+      final user = _allUsers.firstWhere((u) => u.uid == uid);
+      return user;
+    } catch (_) {
+      // Not found in cache, fetch from Firestore
+      try {
+        return await _service.getUserById(uid);
+      } catch (e) {
+        print("Error fetching user $uid: $e");
+        return null;
+      }
+    }
+  }
+
   void setRoleFilter(String role) {
     if (_roleFilter == role) return;
     _roleFilter = role;

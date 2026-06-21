@@ -41,7 +41,7 @@ class ChartSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Thống kê lượt ứng tuyển (Tuần)",
+                      controller.chartTitle,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -52,7 +52,8 @@ class ChartSection extends StatelessWidget {
                       height: 300,
                       child: Builder(
                         builder: (context) {
-                          double maxApp = controller.weeklyApplications.reduce((a, b) => a > b ? a : b);
+                          if (controller.chartData.isEmpty) return const SizedBox();
+                          double maxApp = controller.chartData.reduce((a, b) => a > b ? a : b);
                           double maxY = maxApp == 0 ? 10 : maxApp * 1.2;
                           return BarChart(
                             BarChartData(
@@ -79,32 +80,29 @@ class ChartSection extends StatelessWidget {
                                   sideTitles: SideTitles(
                                     showTitles: true,
                                     getTitlesWidget: (value, meta) {
-                                      const style = TextStyle(color: Colors.grey, fontSize: 12);
-                                      Widget text;
-                                      switch (value.toInt()) {
-                                        case 0: text = const Text('T2', style: style); break;
-                                        case 1: text = const Text('T3', style: style); break;
-                                        case 2: text = const Text('T4', style: style); break;
-                                        case 3: text = const Text('T5', style: style); break;
-                                        case 4: text = const Text('T6', style: style); break;
-                                        case 5: text = const Text('T7', style: style); break;
-                                        case 6: text = const Text('CN', style: style); break;
-                                        default: text = const Text('', style: style); break;
+                                      int idx = value.toInt();
+                                      if (idx >= 0 && idx < controller.chartLabels.length) {
+                                        // Chỉ hiện một vài nhãn nếu có quá nhiều cột
+                                        if (controller.chartData.length > 15 && idx % 2 != 0) return const SizedBox();
+                                        return SideTitleWidget(
+                                          meta: meta, 
+                                          child: Text(controller.chartLabels[idx], style: const TextStyle(color: Colors.grey, fontSize: 10))
+                                        );
                                       }
-                                      return SideTitleWidget(meta: meta, child: text);
+                                      return const SizedBox();
                                     },
                                   ),
                                 ),
                               ),
                               borderData: FlBorderData(show: false),
-                              barGroups: List.generate(7, (index) {
+                              barGroups: List.generate(controller.chartData.length, (index) {
                                 return BarChartGroupData(
                                   x: index,
                                   barRods: [
                                     BarChartRodData(
-                                      toY: controller.weeklyApplications[index],
+                                      toY: controller.chartData[index],
                                       color: primaryColor,
-                                      width: 16,
+                                      width: controller.chartData.length > 15 ? 8 : 16,
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                   ],
